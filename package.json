@@ -1,0 +1,68 @@
+{
+	"name": "express-to-postman",
+	"version": "0.0.0",
+	"type": "module",
+	"bin": {
+		"express-to-postman": "dist/bin/express-to-postman.js"
+	},
+	"keywords": [
+		"express",
+		"postman",
+		"cli",
+		"collection",
+		"generator"
+	],
+	"imports": {
+		"#app/*": {
+			"my-package-dev": "src/*",
+			"default": "./dist/*"
+		}
+	},
+	"author": "Ali nazari backendwithali@gmail.com",
+	"license": "MIT",
+	"description": "CLI tool to read an Express.js project and generate a Postman collection JSON",
+	"scripts": {
+		"tsc": "tsc",
+		"dev": "tsx --watch src/*.ts",
+		"prebuild": "npm run tsc",
+		"build": "tsup",
+		"prestart": "npm run build",
+		"start": "node dist/index.js",
+		"test": "vitest run --coverage",
+		"test:watch": "vitest dev",
+		"prelint": "biome format --write ./src/*.ts ./tests/*.ts",
+		"lint": "biome lint ./src/*.ts ./tests/*.ts",
+		"check": "biome check --write ./src/*.ts ./tests/*.ts",
+		"prepare": "husky",
+		"commit": "cz",
+		"clean": "del-cli dist/ coverage/ *.log"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/express": "^5.0.3",
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^22.13.10",
+		"@vitest/coverage-v8": "^3.0.9",
+		"cz-conventional-changelog": "^3.3.0",
+		"del-cli": "^6.0.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.0",
+		"tsup": "^8.4.0",
+		"tsx": "^4.19.3",
+		"typescript": "^5.8.2",
+		"vitest": "^3.0.9"
+	},
+	"peerDependencies": {
+		"express": "^5.0.0"
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	},
+	"dependencies": {
+		"commander": "^14.0.0",
+		"dotenv": "^16.5.0",
+		"fs-extra": "^11.3.0"
+	}
+}
