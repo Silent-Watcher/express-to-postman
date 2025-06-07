@@ -12,12 +12,13 @@
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "noImplicitOverride": true,
-        
+
         "module": "preserve",
         "noEmit": true,
+
+
         "lib": ["es2022"],
-        
         "baseUrl": ".",
-        "customConditions": ["my-package-dev"]
+        "customConditions": ["my-package-dev"],
     }
 }

@@ -1,8 +1,21 @@
+// import "ts-node/register/transpile-only";
 import { writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import 'ts-node/register';
+import type { Application } from 'express';
 import type { Collection, Item, ItemGroup } from './types';
 import { extractRoutes } from './utils';
+
+/**
+ * Load the user’s entry file via dynamic import (ESM-compatible).
+ */
+export async function loadApp(entryPath: string): Promise<unknown> {
+	const fullPath = resolve(entryPath);
+	const fileUrl = pathToFileURL(fullPath).href;
+
+	// Note: dynamic imports are always uncached by default
+	return await import(fileUrl);
+}
 
 export async function generateCollection(
 	entryPath: string,
@@ -10,7 +23,7 @@ export async function generateCollection(
 	verbose: boolean,
 ): Promise<void> {
 	// Dynamically import the user’s file
-	const mod = await import(pathToFileURL(entryPath).href);
+	const mod = (await loadApp(entryPath)) as { app?: unknown };
 	const app = mod.app;
 	if (!app) {
 		throw new Error(`No named export "app" found in ${entryPath}`);
@@ -27,7 +40,11 @@ export async function generateCollection(
 	// Group routes by first segment
 	const groups: Record<string, ItemGroup> = {};
 
-	for (const { method, path } of extractRoutes(app)) {
+	console.log(
+		' extractRoutes(app as Application): ',
+		extractRoutes(app as Application),
+	);
+	for (const { method, path } of extractRoutes(app as Application)) {
 		const segments = path.split('/').filter(Boolean);
 		const groupName = segments[0] || '/';
 		if (!groups[groupName]) {

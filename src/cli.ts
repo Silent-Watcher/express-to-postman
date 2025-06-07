@@ -2,7 +2,7 @@
 
 import { resolve } from 'node:path';
 import { Command } from 'commander';
-import { version } from '../package.json' with { type: 'json' };
+import { version } from '../package.json';
 import { generateCollection } from './generator';
 
 const program = new Command();
