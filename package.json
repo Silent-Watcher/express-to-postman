@@ -1,8 +1,7 @@
 {
 	"name": "express-to-postman",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"type": "module",
-	"types": "dist/index.d.ts",
 	"bin": {
 		"express-to-postman": "dist/cli.js"
 	},

@@ -5,7 +5,6 @@ export default defineConfig({
 	format: ['esm'], // Keep ESM format
 	outDir: 'dist',
 	clean: true,
-	sourcemap: true,
 	minify: true,
 	outExtension: () => ({ js: '.js' }), // Force .js instead of .mjs
 	esbuildOptions: (options) => {
