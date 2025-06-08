@@ -41,13 +41,11 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/express": "^5.0.3",
-		"@types/fs-extra": "^11.0.4",
 		"@types/mock-require": "^3.0.0",
 		"@types/node": "^22.13.10",
 		"@vitest/coverage-v8": "^3.0.9",
 		"cz-conventional-changelog": "^3.3.0",
 		"del-cli": "^6.0.0",
-		"esbuild": "^0.25.5",
 		"express": "^5.1.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.1.0",
@@ -66,6 +64,7 @@
 		}
 	},
 	"dependencies": {
-		"commander": "^14.0.0"
+		"commander": "^14.0.0",
+		"esbuild": "^0.25.5"
 	}
 }
