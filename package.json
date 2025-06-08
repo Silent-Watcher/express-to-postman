@@ -5,6 +5,9 @@
 	"bin": {
 		"express-to-postman": "dist/cli.js"
 	},
+	"repository": {
+		"url": "https://github.com/Silent-Watcher/express-to-postman"
+	},
 	"keywords": [
 		"express",
 		"postman",
