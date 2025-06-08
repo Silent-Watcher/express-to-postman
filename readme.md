@@ -1,3 +1,5 @@
+![express-to-postman](./.github/express-to-postman.png)
+
 # express-to-postman
 
 Generate Postman Collections automatically from your Express.js application routes.
