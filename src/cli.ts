@@ -11,6 +11,7 @@ program
 	.name('express-to-postman')
 	.description('Generate a Postman Collection from an Express v5 app')
 	.version(version)
+	.showHelpAfterError()
 	.requiredOption(
 		'-i, --input <path>',
 		'Path to your Express app entry file (JS or TS)',
@@ -21,6 +22,17 @@ program
 		'postman.collection.json',
 	)
 	.option('-v, --verbose', 'Enable verbose logging', false);
+
+if (process.argv.length <= 2) {
+	program.outputHelp();
+	process.exit(0);
+}
+
+program.exitOverride((err) => {
+	console.error(err.message);
+	program.outputHelp();
+	process.exit(1);
+});
 
 program.parse(process.argv);
 

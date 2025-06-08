@@ -1,20 +1,41 @@
-// import "ts-node/register/transpile-only";
-import { writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { readFile, unlink, writeFile } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { build } from 'esbuild';
 import type { Application } from 'express';
 import type { Collection, Item, ItemGroup } from './types';
-import { extractRoutes } from './utils';
+import { extractRoutes, findProjectRoot } from './utils';
 
-/**
- * Load the user’s entry file via dynamic import (ESM-compatible).
- */
 export async function loadApp(entryPath: string): Promise<unknown> {
-	const fullPath = resolve(entryPath);
-	const fileUrl = pathToFileURL(fullPath).href;
+	const entryDir = dirname(entryPath);
 
-	// Note: dynamic imports are always uncached by default
-	return await import(fileUrl);
+	const outFile = join(
+		entryDir,
+		`${basename(entryPath, '.ts')}-${Date.now()}.js`,
+	);
+
+	const projectRoot = (await findProjectRoot(entryDir)) || entryDir;
+	const pkgJsonPath = join(projectRoot, 'package.json');
+	let deps: string[] = [];
+	try {
+		const pkg = JSON.parse(await readFile(pkgJsonPath, 'utf-8'));
+		deps = Object.keys(pkg.dependencies || {});
+	} catch {
+		// no package.json, or it’s unreadable — fall back to zero deps
+	}
+
+	await build({
+		entryPoints: [entryPath],
+		outfile: outFile,
+		bundle: true,
+		format: 'esm',
+		platform: 'node',
+		external: [...deps],
+	});
+
+	const mod = await import(pathToFileURL(outFile).href);
+	await unlink(outFile);
+	return mod;
 }
 
 export async function generateCollection(
@@ -22,7 +43,6 @@ export async function generateCollection(
 	outputPath: string,
 	verbose: boolean,
 ): Promise<void> {
-	// Dynamically import the user’s file
 	const mod = (await loadApp(entryPath)) as { app?: unknown };
 	const app = mod.app;
 	if (!app) {
@@ -37,7 +57,6 @@ export async function generateCollection(
 		item: [],
 	};
 
-	// Group routes by first segment
 	const groups: Record<string, ItemGroup> = {};
 
 	console.log(
@@ -67,7 +86,6 @@ export async function generateCollection(
 		groups[groupName].item.push(item);
 	}
 
-	// Push groups into collection
 	for (const key of Object.keys(groups)) {
 		collection.item.push(groups[key] as ItemGroup);
 	}
@@ -76,6 +94,5 @@ export async function generateCollection(
 		console.log(JSON.stringify(collection, null, 2));
 	}
 
-	// Write to disk
 	await writeFile(outputPath, JSON.stringify(collection, null, 2), 'utf-8');
 }

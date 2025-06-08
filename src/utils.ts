@@ -1,3 +1,5 @@
+import { access } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import type { Application } from 'express';
 
 export interface ExpressLayer {
@@ -27,23 +29,18 @@ export function* extractRoutes(app: Application): Generator<RouteInfo> {
 	for (const layer of routerStack as ExpressLayer[]) {
 		if (!layer) continue;
 
-		// ✅ Direct route
 		if (layer.route?.path && layer.route.methods) {
 			for (const method of Object.keys(layer.route.methods)) {
 				yield { method: method.toUpperCase(), path: layer.route.path };
 			}
-		}
-
-		// ✅ Nested router (e.g. app.use('/api', router))
-		else if (
+		} else if (
 			layer.name === 'router' &&
 			layer.handle?.stack &&
 			Array.isArray(layer.handle.stack)
 		) {
-			// Optional chaining for regex, fallback to empty string if missing
 			const prefix =
 				layer.regexp?.source
-					?.replace('\\/?(?=\\/|$)', '') // Clean trailing optional slash
+					?.replace('\\/?(?=\\/|$)', '')
 					.replace('^', '')
 					.replace('$', '') || '';
 
@@ -57,6 +54,25 @@ export function* extractRoutes(app: Application): Generator<RouteInfo> {
 					}
 				}
 			}
+		}
+	}
+}
+
+export async function findProjectRoot(
+	startDir: string,
+): Promise<string | null> {
+	let dir = startDir;
+	while (true) {
+		try {
+			const pkgPath = join(dir, 'package.json');
+			await access(pkgPath);
+			return dir;
+		} catch {
+			const parent = dirname(dir);
+			if (parent === dir) {
+				return null;
+			}
+			dir = parent;
 		}
 	}
 }
